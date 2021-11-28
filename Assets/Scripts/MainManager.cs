@@ -10,11 +10,12 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text ScoreText, bestScoreText, playerNameText;
+    public string highScoreplayerNameText, currrentPlayerNameText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
-    private int m_Points;
+    private int m_Points, highScore;
     
     private bool m_GameOver = false;
 
@@ -36,6 +37,16 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        currrentPlayerNameText = GlobalControl.Instance.savedData.currentPlayerName; //save the current player name before is overwritent by loading highScore()
+        playerNameText = GameObject.Find("PlayerNameText").GetComponent<Text>();
+        playerNameText.text = "Player Name: " + currrentPlayerNameText;
+        
+        GlobalControl.Instance.LoadHighScore();
+
+        bestScoreText = GameObject.Find("BestScoreText").GetComponent<Text>();
+        bestScoreText.text = "Best Score: " + GlobalControl.Instance.savedData.highScore + "        Player Name: " + GlobalControl.Instance.savedData.highScorePlayerName;
+
     }
 
     private void Update()
@@ -66,6 +77,12 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        if (m_Points > GlobalControl.Instance.savedData.highScore)
+        {
+            GlobalControl.Instance.savedData.highScore = m_Points;
+            GlobalControl.Instance.savedData.highScorePlayerName = currrentPlayerNameText;
+            GlobalControl.Instance.SaveHighScore();
+        }
     }
 
     public void GameOver()
